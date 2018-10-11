@@ -13,15 +13,18 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
-import citydomino_jnodop_inf102640.pp18_logic.GUIConnector;
 import citydomino_jnodop_inf102640.pp18_logic.Game;
 import citydomino_jnodop_inf102640.pp18_logic.Pos;
+import citydomino_jnodop_inf102640.pp18_logic.GUI2Game;
 import javafx.event.EventHandler;
+import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 
@@ -40,7 +43,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private GridPane selectPane;
     @FXML
-    private Pane currentBox;
+    private GridPane currentBox;
     @FXML
     private GridPane citycenterPane;
     @FXML
@@ -62,15 +65,17 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private Button loeschen;
     
-    private GUIConnector gui;
+    private GUI2Game game;
+    
+    private JavaFXGUI gui;
     
     private Game logik;
     
-    private final String tKons = String.format("P0 P0 P0 P0 P0"
-                                + " P0 P0 P0 P0 P0"
-                                + " P0 P0 C0 P0 P0"
-                                + " P0 P0 P0 P0 P0"
-                                + " P0 P0 P0 P0 P0");
+    private final String tKons = String.format("N0 N0 N0 P0 N0"
+                                + " N0 P0 P1 P0 N0"
+                                + " N0 A0 C0 P0 N0"
+                                + " N0 A2 N0 P0 N0"
+                                + " I0 A0 N0 P0 P0");
 
     /**
      * creates an array of imageviews corresponding to the gridPane. Each
@@ -100,13 +105,34 @@ public class FXMLDocumentController implements Initializable {
         return imageViews;
     }
     
+    private ImageView[] initCurrentImages(GridPane gridPane) {
+        ImageView[] imageViews = new ImageView[2];
+        //creates an empty imageview
+        imageViews[0] = new ImageView(new Image("citydomino_jnodop_inf102640/pp18_gui/pictures/Amusement_0.png"));
+        //add the imageview to the cell and
+        //assign the correct indicees for this imageview, so you later can use GridPane.getColumnIndex(Node)
+        gridPane.add(imageViews[0], 0, 0);
+        imageViews[0].fitWidthProperty().bind(gridPane.widthProperty().divide(2));
+        imageViews[0].fitHeightProperty().bind(gridPane.heightProperty().divide(1));
+        //creates an empty imageview
+        imageViews[1] = new ImageView(new Image("citydomino_jnodop_inf102640/pp18_gui/pictures/Park_0.png"));
+        //add the imageview to the cell and
+        //assign the correct indicees for this imageview, so you later can use GridPane.getColumnIndex(Node)
+        gridPane.add(imageViews[1], 0, 1);
+        imageViews[1].fitWidthProperty().bind(gridPane.widthProperty().divide(2));
+        imageViews[1].fitHeightProperty().bind(gridPane.heightProperty().divide(1));
+        return imageViews;
+    }
+    
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         ImageView[][] imageView = initImages(playerPane);
-        gui = new JavaFXGUI(imageView);
+        this.addDragAndDropHandlers(imageView);
+        ImageView[] currentImageView = initCurrentImages(currentBox); 
+        gui = new JavaFXGUI(imageView, currentImageView);
         logik = new Game(gui, tKons);
     }    
 
@@ -132,5 +158,112 @@ public class FXMLDocumentController implements Initializable {
 
     @FXML
     private void deleteStone(ActionEvent event) {
+    }
+    
+    @FXML
+    private void onClickPnSelected(MouseEvent event) {
+        game.boxClicked();
+    }
+    
+    @FXML
+    private void onDragDetectedPnSelected(MouseEvent event) {
+        /* drag was detected, start a drag-and-drop gesture*/
+        /* allow any transfer mode */
+        Dragboard db = this.currentBox.startDragAndDrop(TransferMode.MOVE);
+        ClipboardContent content = new ClipboardContent();
+
+        content.putString("");
+        db.setContent(content);
+
+        db.setDragView(this.currentBox.snapshot(new SnapshotParameters(), null), 10, 10);
+
+        event.consume();
+
+    }
+    
+    /* AUTHOR: NIKLAS DREWS @FXML
+    private void dropOnBoard(DragEvent event) {
+        int r = -1;
+        int c = -1;
+        for (Node node : boardfield.getChildren()) {
+            if (node.getBoundsInParent().contains(event.getX(), event.getY())) {
+                // to use following methods the columnIndex and rowIndex
+                // must have been set when adding the imageview to the grid
+                c = GridPane.getColumnIndex(node);
+                r = GridPane.getRowIndex(node);
+            }
+        }
+        // if there is a valid position and the card could be placed
+        if (r != -1 && c != -1 && logic.placeCard(selectedCard, r, c)) {
+            Dragboard db = event.getDragboard();
+            // unset dragboard content
+            db.setContent(null);
+            updateSingleField(r, c);
+            settempTurnPoints(logic.getTempPoints());
+            updateHand();
+        }
+    }*/
+    
+    private void addDragAndDropHandlers(ImageView[][] imgVws) {
+        for (int x = 0; x < imgVws.length; x++) {
+            for (int y = 0; y < imgVws[x].length; y++) {
+                final int fx = x; 
+                final int fy = y; 
+                imgVws[x][y].setOnDragOver((EventHandler<DragEvent>) (DragEvent event) -> {
+                    if (event.getGestureSource() == currentBox) {
+                        event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+                    }
+                    event.consume();
+                });
+                imgVws[x][y].setOnDragEntered((EventHandler<DragEvent>) (DragEvent event) -> {
+                    Pos pos = new Pos(fx, fy);
+                    if (this.game.fits(pos)) {
+                        this.gui.highlightDominoPosGreen(pos);
+                    } else {
+                        this.gui.highlightDominoPosRed(pos);
+                    }
+                    event.consume();
+                });
+                imgVws[x][y].setOnDragExited((EventHandler<DragEvent>) (DragEvent event) -> {
+                    this.gui.removeHighlightDominoPos(new Pos(fx, fy));
+                    event.consume();
+                });
+                imgVws[x][y].setOnDragDropped((EventHandler<DragEvent>) (DragEvent event) -> {
+                    boolean success = false;
+                    Pos pos = new Pos(fx, fy); 
+                    if (this.game.fits(pos)) {
+                        success = true;
+                        this.gui.removeHighlightDominoPos(pos);
+                        this.game.setOnBoard(pos);  
+                    }
+                    event.setDropCompleted(success);
+                    event.consume();
+                });
+            }
+        }
+    }
+    @FXML
+    private void onClickGrdPnBank(MouseEvent event) {
+        int x = -1;
+        int y = -1;
+        boolean leftClicked = event.getButton() == MouseButton.PRIMARY;
+        boolean rightClicked = event.getButton() == MouseButton.SECONDARY;
+
+        //determine the imageview of the grid that contains the coordinates of the mouseclick 
+        //to determine the board-coordinates
+        for (Node node : selectPane.getChildren()) {
+            if (node instanceof ImageView) {
+                if (node.getBoundsInParent().contains(event.getX(), event.getY())) {
+                    //to use following methods the columnIndex and rowIndex
+                    //must have been set when adding the imageview to the grid
+                    x = GridPane.getColumnIndex(node);
+                    y = GridPane.getRowIndex(node);
+                }
+            }
+        }
+
+        if (x >= 0 && y >= 0 && leftClicked) {
+            this.game.clickOnPlayersBank(y);
+        }
     }
 }

@@ -6,9 +6,7 @@
 package citydomino_jnodop_inf102640.pp18_logic;
 
 import java.util.Random;
-
-import citydomino_jnodop_inf102640.pp18_logic.GUIConnector;
-import citydomino_jnodop_inf102640.pp18_logic.Game;
+import java.util.ArrayList;
 
 /**
  *
@@ -23,13 +21,18 @@ public class Game {
     private final int ROWS = 5;
     private final int COLS = 5;
     private final int NUMSTONES = 48;
+    public final static int BANK_SIZE = 4;
+    public final static int PLAYER_CNT = Player.values().length;
     private int randNum = 0;
     private int score = 0;
     private final GUIConnector gui;
     private final Random rand = new Random();
-    private Tiles[][] board;
+    private final Tiles[][] board;
+    private Stones currentStone;
     private Tiles tempTile;
     private String tempString;
+    
+    private ArrayList<Stones> stack;
 
     /**
      * Methode zum Aufbau eines Spielfeld anhand eines Strings
@@ -39,6 +42,7 @@ public class Game {
     public Game(GUIConnector gui, String board) {
         this.gui = gui;
         this.board = konsString(board);
+        this.currentStone = Stones.ALL_STONES.get(randomGen());
         gui.displayGrid(this.board);
         }
     
@@ -65,17 +69,35 @@ public class Game {
             case "P1":
                 tempTile = new Tiles(Districts.park, 1);
                 break;
+            case "P2":
+                tempTile = new Tiles(Districts.park, 2);
+                break;
+            case "P3":
+                tempTile = new Tiles(Districts.park, 3);
+                break;
             case "H0":
                 tempTile = new Tiles(Districts.home, 0);
                 break;
             case "H1":
                 tempTile = new Tiles(Districts.home, 1);
                 break;
+            case "H2":
+                tempTile = new Tiles(Districts.home, 2);
+                break;
+            case "H3":
+                tempTile = new Tiles(Districts.home, 3);
+                break;
             case "A0":
                 tempTile = new Tiles(Districts.amusement, 0);
                 break;
             case "A1":
                 tempTile = new Tiles(Districts.amusement, 1);
+                break;
+            case "A2":
+                tempTile = new Tiles(Districts.amusement, 2);
+                break;
+            case "A3":
+                tempTile = new Tiles(Districts.amusement, 3);
                 break;
             case "S0":
                 tempTile = new Tiles(Districts.shopping, 0);
@@ -86,6 +108,9 @@ public class Game {
             case "S2":
                 tempTile = new Tiles(Districts.shopping, 2);
                 break;
+            case "S3":
+                tempTile = new Tiles(Districts.shopping, 3);
+                break;
             case "O0":
                 tempTile = new Tiles(Districts.office, 0);
                 break;
@@ -94,6 +119,9 @@ public class Game {
                 break;
             case "O2":
                 tempTile = new Tiles(Districts.office, 2);
+                break;
+            case "O3":
+                tempTile = new Tiles(Districts.office, 3);
                 break;
             case "I0":
                 tempTile = new Tiles(Districts.industry, 0);

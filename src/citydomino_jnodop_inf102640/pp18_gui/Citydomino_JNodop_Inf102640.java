@@ -18,8 +18,8 @@ public class Citydomino_JNodop_Inf102640 extends Application {
 
         Scene scene = new Scene(root);
         
-        stage.setMinWidth(800);
-        stage.setMinHeight(800);
+        stage.setMinWidth(830);
+        stage.setMinHeight(515);
         stage.setScene(scene);
         stage.setTitle("CityDomino");
         stage.show();

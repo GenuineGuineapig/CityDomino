@@ -9,6 +9,7 @@ import citydomino_jnodop_inf102640.pp18_logic.Pos;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
 
 /**
  *
@@ -17,15 +18,20 @@ import javafx.scene.image.ImageView;
 public class JavaFXGUI implements GUIConnector {
     
     private ImageView[][] brett;
-    private Stones currStone = null;
+    private ImageView[] currentBox;
+    private final Stones currStone = null;
     
     protected static final Image EMPTY_IMG = new Image("citydomino_jnodop_inf102640/pp18_gui/pictures/Empty.png");
 
-    public JavaFXGUI(ImageView[][] brett) {
+    public JavaFXGUI(ImageView[][] brett, ImageView[] currentBox) {
         this.brett = brett;
+        this.currentBox = currentBox;
     }
     
     private Image getImage(Tiles tile) {
+        if (tile.getDistrict() == Districts.none) {
+            return EMPTY_IMG;
+        }
         if (tile.getDistrict() == Districts.amusement && tile.getPrestige() == 0) {
             return new Image("citydomino_jnodop_inf102640/pp18_gui/pictures/Amusement_0.png");
         }
@@ -33,7 +39,7 @@ public class JavaFXGUI implements GUIConnector {
             return new Image("citydomino_jnodop_inf102640/pp18_gui/pictures/Amusement_1.png");
         }
         if (tile.getDistrict() == Districts.amusement && tile.getPrestige() == 2) {
-            return new Image("file:i/pictures/Amusement_2.png");
+            return new Image("citydomino_jnodop_inf102640/pp18_gui/pictures/Amusement_2.png");
         }
         if (tile.getDistrict() == Districts.amusement && tile.getPrestige() == 3) {
             return new Image("citydomino_jnodop_inf102640/pp18_gui/pictures/Amusement_3.png");
@@ -108,7 +114,7 @@ public class JavaFXGUI implements GUIConnector {
     public void displayGrid(Tiles[][] board) {
     for(int row = 0; row < board.length; row++) {
                 for(int col = 0; col < board[row].length; col++) {
-                    brett[row][col].setImage(getImage(board[row][col]));
+                    brett[col][row].setImage(getImage(board[row][col]));
                 }
                 
             }
@@ -135,8 +141,9 @@ public class JavaFXGUI implements GUIConnector {
     }
     
     @Override
-    public void showRotateBox(Stones stone) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void showCurrentBox(Stones stone) {
+        currentBox[0].setImage(getImage(stone.getFst()));
+        currentBox[1].setImage(getImage(stone.getSnd()));
     }
     
     /**

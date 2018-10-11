@@ -1,4 +1,9 @@
-package citydomino_jnodop_inf102640.pp18_logic;
+package pp18test;
+
+import citydomino_jnodop_inf102640.pp18_logic.GUIConnector;
+import citydomino_jnodop_inf102640.pp18_logic.Player;
+import citydomino_jnodop_inf102640.pp18_logic.Stones;
+import citydomino_jnodop_inf102640.pp18_logic.Tiles;
 
 /**
  *
@@ -21,5 +26,5 @@ public class FakeGUI implements GUIConnector {
     public void showChooseBox(Stones stone) {}
     
     @Override
-    public void showRotateBox(Stones stone) {}
+    public void showCurrentBox(Stones stone) {}
 }

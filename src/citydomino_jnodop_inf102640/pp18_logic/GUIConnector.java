@@ -12,5 +12,5 @@ public interface GUIConnector {
     void showResult(int Points);
     void showWhosTurn(Player player);
     void showChooseBox(Stones stone);
-    void showRotateBox(Stones stone);
+    void showCurrentBox(Stones stone);
 }
